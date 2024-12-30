@@ -1,0 +1,183 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <iomanip>
+using namespace std;
+
+// Student class to store student details
+class Student {
+private:
+    int id;
+    string name;
+    vector<int> marks;
+    double grade;
+
+public:
+    Student(int id, string name, vector<int> marks)
+        : id(id), name(name), marks(marks), grade(0.0) {
+        calculateGrade();
+    }
+
+    // Method to calculate grade
+    void calculateGrade() {
+        if (!marks.empty()) {
+            int total = 0;
+            for (int mark : marks) {
+                total += mark;
+            }
+            grade = static_cast<double>(total) / marks.size();
+        } else {
+            grade = 0.0;
+        }
+    }
+
+    // Accessors and mutators
+    int getId() const { return id; }
+    string getName() const { return name; }
+    double getGrade() const { return grade; }
+
+    void setName(const string& newName) { name = newName; }
+    void setMarks(const vector<int>& newMarks) {
+        marks = newMarks;
+        calculateGrade();
+    }
+
+    // Display student details
+    void display() const {
+        cout << "ID: " << id << ", Name: " << name
+             << ", Grade: " << fixed << setprecision(2) << grade << endl;
+    }
+};
+
+// StudentManagement class to handle student operations
+class StudentManagement {
+private:
+    vector<Student> students;
+
+    // Find student by ID
+    int findStudentIndex(int id) {
+        for (size_t i = 0; i < students.size(); ++i) {
+            if (students[i].getId() == id) {
+                return i;
+            }
+        }
+        return -1; // Not found
+    }
+
+public:
+    // Add a new student
+    void addStudent(int id, string name, vector<int> marks) {
+        if (findStudentIndex(id) != -1) {
+            cout << "Student with ID " << id << " already exists.\n";
+            return;
+        }
+        students.emplace_back(id, name, marks);
+        cout << "Student added successfully.\n";
+    }
+
+    // Edit existing student
+    void editStudent(int id, string newName, vector<int> newMarks) {
+        int index = findStudentIndex(id);
+        if (index == -1) {
+            cout << "Student with ID " << id << " not found.\n";
+            return;
+        }
+        students[index].setName(newName);
+        students[index].setMarks(newMarks);
+        cout << "Student updated successfully.\n";
+    }
+
+    // Delete a student
+    void deleteStudent(int id) {
+        int index = findStudentIndex(id);
+        if (index == -1) {
+            cout << "Student with ID " << id << " not found.\n";
+            return;
+        }
+        students.erase(students.begin() + index);
+        cout << "Student deleted successfully.\n";
+    }
+
+    // Display all students
+    void displayAllStudents() const {
+        if (students.empty()) {
+            cout << "No students available.\n";
+            return;
+        }
+        for (const auto& student : students) {
+            student.display();
+        }
+    }
+};
+
+// Main function
+int main() {
+    StudentManagement sm;
+    int choice, id;
+    string name;
+    vector<int> marks;
+    int numMarks, mark;
+
+    do {
+        cout << "\nStudent Management System\n";
+        cout << "1. Add Student\n2. Edit Student\n3. Delete Student\n";
+        cout << "4. Display All Students\n5. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1:
+                cout << "Enter ID: ";
+                cin >> id;
+                cin.ignore();
+                cout << "Enter Name: ";
+                getline(cin, name);
+                cout << "Enter number of marks: ";
+                cin >> numMarks;
+                marks.clear();
+                cout << "Enter marks: ";
+                for (int i = 0; i < numMarks; ++i) {
+                    cin >> mark;
+                    marks.push_back(mark);
+                }
+                sm.addStudent(id, name, marks);
+                break;
+
+            case 2:
+                cout << "Enter ID of student to edit: ";
+                cin >> id;
+                cin.ignore();
+                cout << "Enter new Name: ";
+                getline(cin, name);
+                cout << "Enter number of marks: ";
+                cin >> numMarks;
+                marks.clear();
+                cout << "Enter marks: ";
+                for (int i = 0; i < numMarks; ++i) {
+                    cin >> mark;
+                    marks.push_back(mark);
+                }
+                sm.editStudent(id, name, marks);
+                break;
+
+            case 3:
+                cout << "Enter ID of student to delete: ";
+                cin >> id;
+                sm.deleteStudent(id);
+                break;
+
+            case 4:
+                sm.displayAllStudents();
+                break;
+
+            case 5:
+                cout << "Exiting...\n";
+                break;
+
+            default:
+                cout << "Invalid choice. Please try again.\n";
+        }
+    } while (choice != 5);
+
+    return 0;
+}
